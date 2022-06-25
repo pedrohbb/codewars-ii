@@ -12,7 +12,7 @@ class Funcionario():
             nome, cpf, data_admissao, codigo_cargo, comissao)
         
     @staticmethod
-    def gerar_matricula(nome, cpf, data_admissao, codigo_cargo, comissao) -> int:
+    def gerar_matricula(nome: str, cpf: str, data_admissao: str, codigo_cargo: int, comissao: bool) -> int:
         
         # AO FINAL REMOVER DAQUI A CONSULTA E COLOCAR UMA CONSULTA GERAL PARA TODOS
 
@@ -31,7 +31,7 @@ class Funcionario():
         cursor = cnx.cursor()
         
         insert_funcionario = (
-            f"INSERT INTO funcionarios (nome, cpf, data_admissao, codigo_cargo, comissao) VALUES ('{nome}', {cpf}, '{data_admissao}', {codigo_cargo}, {comissao});")
+            f"INSERT INTO funcionarios (nome, cpf, data_admissao, codigo_cargo, comissao) VALUES ('{nome}', {cpf}, '{data_admissao}', {codigo_cargo}, '{str(comissao)}');")
 
         cursor.execute(insert_funcionario)
         cnx.commit()
