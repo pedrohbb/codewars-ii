@@ -11,7 +11,6 @@ class Cadastro():
     def lista(self):
         return self.__lista
     
-    
     def inserir(self) -> None:
         
         nome = input('Digite o nome do funcionário: ')
@@ -19,77 +18,120 @@ class Cadastro():
         data_admissao = input('Digite a data de admissão do funcionário: ')
         codigo_cargo = int(input('Digite o cargo do funcionário: '))
         comissao = input('O funcionário possui comissão? S ou N: ')
-        comissao = lambda x: 1 if comissao == 'S' else 0
+        comissao = list(map(lambda x: 1 if x == 'S' else 0, comissao))[0]
         
         Funcionario(nome, cpf, data_admissao, codigo_cargo, comissao)
-        
-        
-        
-        # cnx = mysql.connector.connect(user='user', password='password',
-        #                               host='host',
-        #                               database='codewars-ii')
 
-        # cursor = cnx.cursor()
-        
-        # insert_funcionario = (
-        #     f"""INSERT INTO funcionarios (nome, cpf, data_admissao, codigo_cargo, comissao) 
-        #     VALUES ('{nome}', {funcionario.cpf}, '{funcionario.data_admissao}', {funcionario.codigo_cargo},{funcionario.comissao});""")
-
-        # cursor.execute(insert_funcionario)
-        # cnx.commit()
-
-        # cursor = cnx.cursor()
-
-
-
-    def exclusao(self, chave: Funcionario or int) -> None:
+    def excluir(self, chave: int or str) -> None:
         cnx = mysql.connector.connect(user='user', password='password',
                                       host='host',
                                       database='codewars-ii')
         cursor = cnx.cursor()
         
-        if isinstance(chave, Funcionario):
-            chave = chave.matricula
+        if len(str(chave)) == 6:
+            assinatura = 'matricula'
+        if len(str(chave)) == 11:
+            assinatura = 'cpf'
+        if isinstance(chave, str):
+            assinatura = 'nome'
 
-        deletar_funcionario = (f"DELETE FROM funcionarios WHERE matricula = {chave}")
+        deletar_funcionario = (f"DELETE FROM funcionarios WHERE {assinatura} = {chave}")
 
-        cursor.execute(deletar_funcionario, [chave])
+        cursor.execute(deletar_funcionario)
 
         cnx.commit()
 
-        cursor.close()
         cnx.close()
 
-    def consulta(self, funcionario: Funcionario):
+    def consultar(self, chave: int):
+        cnx = mysql.connector.connect(user='user', password='password',
+                                      host='host',
+                                      database='code_wars_ii')
+        cursor = cnx.cursor()
+
+        if len(str(chave)) == 6:
+            assinatura = 'matricula'
+        if len(str(chave)) == 11:
+            assinatura = 'cpf'
+
+        consultar_matricula = (f"""
+                            SELECT matricula, nome, cpf, cargo, salario_base, comissao 
+                            FROM funcionarios WHERE {assinatura} = {chave};
+        """)
+
+        cursor.execute(consultar_matricula)
+
+        query = cursor.fetchall()[0]
+
+        campo = ['matricula', 'nome', 'cpf', 'cargo', 'data_admissao', 'comissao']
+
+        resultado_consulta = {}
+        for i in range(len(campo)):
+            resultado_consulta[campo[i]] = query[i]
+            
+        cnx.close()
+
+        return resultado_consulta
+
+    def alterar(self):
+
         cnx = mysql.connector.connect(user='user', password='password',
                                       host='host',
                                       database='codewars-ii')
         cursor = cnx.cursor()
-       
-        consultar_matricula = (
-            f"SELECT matricula FROM funcionarios WHERE cpf = {cpf} AND data_admissao = '{data_admissao}';")
+        
+        chave = int(input("Insira a matrícula ou cpf do funcionário: "))
 
-        cursor.execute(consultar_funcionario, {
-            "nome": funcionario.nome,
-            "cpf": funcionario.cpf,
-            "data_admissao": funcionario.data_admissao,
-            "codigo_cargo": funcionario.cpf,
-            "comissao": funcionario.comissao
-        })
+        campo = ['matricula', 'nome', 'cpf', 'cargo', 'data_admissao', 'comissao']
+        campo = campo[int(input(f"""
+                         Digite 1 para modificar a MATRÍCULA
+                         Digite 2 para modificar o NOME
+                         Digite 3 para modificar o CPF
+                         Digite 4 para modificar o CARGO
+                         Digite 5 para modificar a DATA DE ADMISSÃO
+                         Digite 6 para modificar o RECEBER COMISSÃO
+        """)) - 1]
+
+        novo_dado = input(f"{campo.capitalize()}: ")
+
+        if len(str(chave)) == 6:
+            assinatura = 'matricula'
+        if len(str(chave)) == 11:
+            assinatura = 'cpf'
+
+        if campo == 'cpf' or 'matricula':
+            alterar_funcionario = (f"UPDATE funcionarios SET {campo} = {novo_dado} WHERE {assinatura} = {chave};")
+        else:
+            alterar_funcionario = (f"UPDATE funcionarios SET {campo} = '{novo_dado}' WHERE {assinatura} = {chave};")
+        
+        cursor.execute(alterar_funcionario)
 
         cnx.commit()
 
-        cursor.close()
         cnx.close()
 
-    
-    # def consulta(self, chave: str or int):
-    #     return self.lista[]
 
-    # def alteracao(self, chave: str or int):
+    def listagem(self):
 
-    
-    # def assinatura(chave: str or int):
-    #     if isinstance(chave, str):
-    #         nome = chave
-    #         result_query = consultas.inseri
+        cnx = mysql.connector.connect(user='user', password='password',
+                                    host='host',
+                                    database='code_wars_ii')
+        cursor = cnx.cursor()
+
+        if len(str(chave)) == 6:
+            assinatura = 'matricula'
+        if len(str(chave)) == 11:
+            assinatura = 'cpf'
+
+        consultar_dados = (f"""SELECT matricula, nome, cpf, cargo, salario_base, comissao 
+                                FROM funcionarios WHERE {assinatura} = {chave};""")
+
+        cursor.execute(consultar_dados)
+
+        resultado_consulta = cursor.fetchall()
+
+        cnx.close()
+
+        return resultado_consulta
+
+
