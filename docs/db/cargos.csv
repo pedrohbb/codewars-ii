@@ -1,0 +1,7 @@
+codigo_cargo,descricao,salario_base,comissao
+10,"Cientista de Dados",10200,0.1
+20,"Especialista em Business Intelligence",7000,0.08
+30,"Desenvolvedor Mobile Sênior",6700,0.07
+31,"Desenvolvedor Mobile Pleno",3550,0.06
+32,"Desenvolvedor Junior",3000,0.03
+50,"Gerente de Projetos",8900,0.08
