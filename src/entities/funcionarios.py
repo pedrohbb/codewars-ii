@@ -1,7 +1,5 @@
 import os
 import mysql.connector
-
-
 class Funcionario():
 
     def __init__(self, nome: str, cpf: str, data_admissao: str, codigo_cargo: int, comissao: bool):
@@ -12,7 +10,7 @@ class Funcionario():
         self.__comissao: bool = comissao
         self.__matricula: int = self.gerar_matricula(
             nome, cpf, data_admissao, codigo_cargo, comissao)
-
+        
     @staticmethod
     def gerar_matricula(nome, cpf, data_admissao, codigo_cargo, comissao) -> int:
         

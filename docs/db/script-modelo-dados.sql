@@ -34,7 +34,7 @@ DEFAULT CHARACTER SET = utf8mb3;
 -- Table `code_wars_ii`.`funcionarios`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `code_wars_ii`.`funcionarios` (
-  `matricula` INT NOT NULL AUTO_INCREMENT,
+  `matricula` INT(6) NOT NULL AUTO_INCREMENT,
   `nome` VARCHAR(100) NOT NULL,
   `cpf` CHAR(11) NOT NULL,
   `data_admissao` DATE NOT NULL,
@@ -47,6 +47,7 @@ CREATE TABLE IF NOT EXISTS `code_wars_ii`.`funcionarios` (
     FOREIGN KEY (`codigo_cargo`)
     REFERENCES `code_wars_ii`.`cargos` (`codigo_cargo`))
 ENGINE = InnoDB
+AUTO_INCREMENT = 100001
 DEFAULT CHARACTER SET = utf8mb3;
 
 
@@ -55,7 +56,7 @@ DEFAULT CHARACTER SET = utf8mb3;
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `code_wars_ii`.`holerite` (
   `mes/ano` CHAR(7) NOT NULL,
-  `matricula` INT NOT NULL,
+  `matricula` INT(6) NOT NULL,
   `faltas` FLOAT NOT NULL,
   `inss` FLOAT NOT NULL,
   `irrf` FLOAT NOT NULL,
