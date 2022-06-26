@@ -5,22 +5,23 @@ from src.entities.funcionarios import Funcionario
 
 
 class Cadastro():
-    
+
     def inserir(self) -> None:
-        
+
         nome = input('Digite o nome do funcionário: ')
         cpf = int(input('Digite o CPF do funcionário: '))
 
         try:
             self.consultar(cpf)
-            raise IntegrityError("Esse CPF já está cadastrado!") 
+            raise IntegrityError("Esse CPF já está cadastrado!")
 
         except IndexError:
             data_admissao = input('Digite a data de admissão do funcionário: ')
             codigo_cargo = int(input('Digite o cargo do funcionário: '))
             comissao = input('O funcionário possui comissão? S ou N: ')
-            comissao = list(map(lambda x: 1 if comissao == 'S' else 0, comissao))[0]
-        
+            comissao = list(
+                map(lambda x: 1 if comissao == 'S' else 0, comissao))[0]
+
         Funcionario(nome, cpf, data_admissao, codigo_cargo, comissao)
 
     def excluir(self, chave: int) -> None:
@@ -30,8 +31,11 @@ class Cadastro():
 
         cnx = mysql.connector.connect(**connection.config)
         cursor = cnx.cursor()
-        
-        deletar_funcionario = (f"DELETE FROM funcionarios WHERE {Cadastro.assinatura(chave)} = {chave};")
+        assinatura_chave = Cadastro.assinatura(chave)
+
+        deletar_funcionario = (
+            f"""DELETE FROM funcionarios WHERE {assinatura_chave} =
+            {list(map(lambda x: str(chave) if x == 'cpf' else chave, assinatura_chave))[0]};""")
 
         cursor.execute(deletar_funcionario)
 
@@ -48,62 +52,69 @@ class Cadastro():
         cursor = cnx.cursor()
 
         consultar_matricula = (f"""
-                            SELECT matricula, nome, cpf, cargo, salario_base, comissao 
+                            SELECT matricula, nome, cpf, data_admissao, codigo_cargo, comissao 
                             FROM funcionarios WHERE {Cadastro.assinatura(chave)} = {chave};
         """)
 
         cursor.execute(consultar_matricula)
 
-        query = cursor.fetchall()[0]
+        try:
+            query = cursor.fetchall()[0]
+            campo = ['matricula', 'nome', 'cpf',
+                     'data_admissao', 'codigo_cargo' 'comissao']
 
-        campo = ['matricula', 'nome', 'cpf', 'cargo', 'data_admissao', 'comissao']
+            resultado_consulta = {}
+            for i in range(len(campo)):
+                resultado_consulta[campo[i]] = query[i]
 
-        resultado_consulta = {}
-        for i in range(len(campo)):
-            resultado_consulta[campo[i]] = query[i]
-            
-        cnx.close()
+            cnx.close()
 
-        return resultado_consulta
+            return resultado_consulta
+
+        except IndexError:
+            raise IndexError('Funcionário inexistente no cadastro. ')
 
     def alterar(self):
 
         cnx = mysql.connector.connect(**connection.config)
         cursor = cnx.cursor()
-        
+
         chave = int(input("Insira a matrícula ou cpf do funcionário: "))
-
-        campos = ['matricula', 'nome', 'cpf', 'cargo', 'data_admissao', 'comissao'] 
-        campo = campos[int(input(f"""
-                         Digite 1 para modificar a MATRÍCULA,
-                                2 para modificar o NOME,
-                                3 para modificar o CPF,
-                                4 para modificar o CARGO,
-                                5 para modificar a DATA DE ADMISSÃO ou
-                                6 para modificar o RECEBER COMISSÃO:
-        """)) - 1]
-
-        novo_dado = input(f"{campo.capitalize()}: ")
-
-        if campo == 'cpf' or 'matricula':
-            alterar_funcionario = (f"UPDATE funcionarios SET {campo} = {novo_dado} WHERE {Cadastro.assinatura(chave)} = {chave};")
-        else:
-            alterar_funcionario = (f"UPDATE funcionarios SET {campo} = '{novo_dado}' WHERE {Cadastro.assinatura(chave)} = {chave};")
         
-        cursor.execute(alterar_funcionario)
+        try:
+            self.consultar(chave)
+            
+            campos = ['nome', 'cpf',
+                  'cargo', 'data_admissao', 'comissao']
+            campo = campos[int(input(f"""
+                            Digite 1 para modificar o NOME,
+                                    2 para modificar o CPF,
+                                    3 para modificar o CARGO,
+                                    4 para modificar a DATA DE ADMISSÃO ou
+                                    5 para modificar o RECEBER COMISSÃO:
+            """)) - 1]
 
-        cnx.commit()
+            novo_dado = input(f"{campo.capitalize()}: ")
 
-        cnx.close()
+            alterar_funcionario = (
+            f"UPDATE funcionarios SET {campo} = '{novo_dado}' WHERE {Cadastro.assinatura(chave)} = {chave};")
 
+            cursor.execute(alterar_funcionario)
+
+            cnx.commit()
+
+            cnx.close()
+            
+        except IndexError:
+            print('Funcionário inexistente!')
+        
 
     def listar(self):
 
         cnx = mysql.connector.connect(**connection.config)
-
         cursor = cnx.cursor()
 
-        consultar_dados = ("SELECT matricula, nome, cpf, cargo, salario_base, comissao FROM funcionarios;")
+        consultar_dados = ("SELECT * FROM funcionarios;")
 
         cursor.execute(consultar_dados)
 

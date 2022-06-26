@@ -1,6 +1,6 @@
 import mysql.connector
 from docs.db import connection
-from entities.modelo_holerite import Modelo_Holerite, modelo_holerite
+from src.entities.modelo_holerite import Modelo_Holerite
 from src.business.cadastros import Cadastro
 
 
@@ -15,10 +15,8 @@ class Holerite():
         self.__valor_comissao: float = self.consultar_valor_comissao()
         self.__base_de_calculo: float = self.calcular_base_de_calculo()
         self.__fgts: float = self.base_de_calculo * 0.08
-        self.__inss: float = self.calcular_inss()[0]
-        self.__aliquota_inss: float = self.calcular_inss()[1]
-        self.__irrf: float = self.calcular_irrf()[0]
-        self.__aliquota_irrf: float = self.calcular_irrf()[1]
+        self.__inss, self.__aliquota_inss = self.calcular_inss()
+        self.__irrf, self.__aliquota_irrf = self.calcular_irrf()
         self.__salario_liquido: float = self.calcular_salario_liquido
 
     @property
@@ -78,9 +76,8 @@ class Holerite():
         cnx = mysql.connector.connect(**connection.config)
         cursor = cnx.cursor()
 
-        consultar_salario = (f"""
-                            SELECT salario_base FROM cargos 
-                            RIGHT JOIN funcionarios USING (codigo_cargo) WHERE matricula = {self.matricula};
+        consultar_salario = (f""" SELECT salario_base FROM cargos \
+                            RIGHT JOIN funcionarios USING (codigo_cargo) WHERE matricula = {self.matricula}; \
         """)
 
         cursor.execute(consultar_salario)
@@ -124,7 +121,7 @@ class Holerite():
         add_eventual = 0  # input("Adicionais eventuais (hora extra etc): ")
         return self.salario_base + self.valor_comissao + add_eventual - self.valor_faltas
 
-    def calcular_inss(self, base_de_calculo: float) -> float:
+    def calcular_inss(self) -> float:
 
         faixas_inss = [
             (0, 1212, 0.075),
@@ -135,9 +132,9 @@ class Holerite():
         inss = 0
 
         for faixa in faixas_inss:
-            if base_de_calculo > faixa[0]:
-                if base_de_calculo < faixa[1]:
-                    inss += (base_de_calculo - faixa[0]) * faixa[2]
+            if self.base_de_calculo > faixa[0]:
+                if self.base_de_calculo < faixa[1]:
+                    inss += (self.base_de_calculo - faixa[0]) * faixa[2]
                     aliquota_inss = faixa[0]
                 else:
                     inss += (faixa[1] - faixa[0]) * faixa[2]
@@ -164,13 +161,11 @@ class Holerite():
 
         return round(irrf, 2), aliquota_irrf
 
-
     def calcular_salario_liquido(self) -> float:
 
         salario_liquido = self.salario_base + self.valor_comissao - \
             (self.valor_faltas + self.inss + self.irrf)
         return salario_liquido
-
 
     def inserir_holerite_db(self) -> None:
 
@@ -188,7 +183,6 @@ class Holerite():
 
         cnx.close()
 
-
     def gerar_holerite(self) -> None:
 
         cnx = mysql.connector.connect(**connection.config)
@@ -200,10 +194,10 @@ class Holerite():
         cursor.execute(consultar_holerite)
 
         try:
-            resultado_consulta = cursor.fetchall()[0]
+            cursor.fetchall()[0][0]
         except IndexError:
             self.inserir_holerite_db()
-            
+
         cadastro = Cadastro()
         holerite = Modelo_Holerite(self, cadastro)
         modelo_holerite = holerite.gerar_modelo()
@@ -212,8 +206,6 @@ class Holerite():
             print(linha)
 
         cnx.close()
-
-        return resultado_consulta
 
 
 def gerar_todos_holerites(cadastro: Cadastro, mes_ano: str) -> None:

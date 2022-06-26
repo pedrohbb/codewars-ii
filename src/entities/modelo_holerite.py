@@ -1,11 +1,9 @@
 import mysql.connector
-from business.cadastros import Cadastro
 from docs.db import connection
-from entities.holerite import Holerite
-
+from src.business.cadastros import Cadastro
 class Modelo_Holerite():
         
-        def __init__(self, holerite: Holerite, cadastro: Cadastro):
+        def __init__(self, holerite, cadastro: Cadastro):
                 self.__holerite = holerite
                 self.__cadastro = cadastro
                 
