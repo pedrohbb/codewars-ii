@@ -1,6 +1,8 @@
 Holerite.xlsx
 .venv/
-.env
+*.env
+~$Holerite.xlsx
+.idea/
 **/__pycache__/
-
-
+__pycache__/
+__pycache__
