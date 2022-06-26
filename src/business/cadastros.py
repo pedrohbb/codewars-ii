@@ -33,15 +33,23 @@ class Cadastro():
         cursor = cnx.cursor()
         assinatura_chave = Cadastro.assinatura(chave)
 
-        deletar_funcionario = (
-            f"""DELETE FROM funcionarios WHERE {assinatura_chave} =
-            {list(map(lambda x: str(chave) if x == 'cpf' else chave, assinatura_chave))[0]};""")
+        try:
+            self.consultar(chave)
 
-        cursor.execute(deletar_funcionario)
+            deletar_funcionario = (
+                f"""DELETE FROM funcionarios WHERE {assinatura_chave} =
+                {list(map(lambda x: str(chave) if x == 'cpf' else chave, assinatura_chave))[0]};""")
 
-        cnx.commit()
+            cursor.execute(deletar_funcionario)
 
-        cnx.close()
+            cnx.commit()
+
+            cnx.close()
+
+            print('Funcionário excluído com sucesso!')
+        
+        except IndexError:
+            print('Funcionário inexistente no cadastro. ')
 
     def consultar(self, chave: int):
         """
@@ -61,7 +69,7 @@ class Cadastro():
         try:
             query = cursor.fetchall()[0]
             campo = ['matricula', 'nome', 'cpf',
-                     'data_admissao', 'codigo_cargo' 'comissao']
+                     'data_admissao', 'codigo_cargo', 'comissao']
 
             resultado_consulta = {}
             for i in range(len(campo)):
@@ -80,12 +88,12 @@ class Cadastro():
         cursor = cnx.cursor()
 
         chave = int(input("Insira a matrícula ou cpf do funcionário: "))
-        
+
         try:
             self.consultar(chave)
-            
+
             campos = ['nome', 'cpf',
-                  'cargo', 'data_admissao', 'comissao']
+                      'cargo', 'data_admissao', 'comissao']
             campo = campos[int(input(f"""
                             Digite 1 para modificar o NOME,
                                     2 para modificar o CPF,
@@ -97,17 +105,16 @@ class Cadastro():
             novo_dado = input(f"{campo.capitalize()}: ")
 
             alterar_funcionario = (
-            f"UPDATE funcionarios SET {campo} = '{novo_dado}' WHERE {Cadastro.assinatura(chave)} = {chave};")
+                f"UPDATE funcionarios SET {campo} = '{novo_dado}' WHERE {Cadastro.assinatura(chave)} = {chave};")
 
             cursor.execute(alterar_funcionario)
 
             cnx.commit()
 
             cnx.close()
-            
+
         except IndexError:
             print('Funcionário inexistente!')
-        
 
     def listar(self):
 

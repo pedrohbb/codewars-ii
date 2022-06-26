@@ -55,15 +55,13 @@ DEFAULT CHARACTER SET = utf8mb3;
 -- Table `code_wars_ii`.`holerite`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `code_wars_ii`.`holerite` (
-  `mes/ano` CHAR(7) NOT NULL,
+  `mes_ano` CHAR(7) NOT NULL,
   `matricula` INT(6) NOT NULL,
   `faltas` FLOAT NOT NULL,
   `inss` FLOAT NOT NULL,
   `irrf` FLOAT NOT NULL,
-  INDEX `fk_holerite_Funcionarios1_idx` (`matricula` ASC) VISIBLE,
-  CONSTRAINT `fk_holerite_Funcionarios1`
-    FOREIGN KEY (`matricula`)
-    REFERENCES `code_wars_ii`.`funcionarios` (`matricula`))
+  `fgts` FLOAT NOT NULL,
+   `salario_liquido` FLOAT NOT NULL)
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb3;
 

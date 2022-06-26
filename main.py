@@ -9,20 +9,19 @@ def main():
 
     tarefas()
 
-    nova_tarefa = input('Deseja realizar outra operação? 1 - Sim / 0 - Não : ')
-
     opcao_invalida = True
 
     while opcao_invalida:
 
-        if nova_tarefa == 'Sim' or '1':
+        nova_tarefa = input(
+            'Deseja realizar outra operação? 1 - Sim / 0 - Não : ')
+
+        if nova_tarefa == 'Sim' or nova_tarefa == '1':
             tarefas()
-        elif nova_tarefa == 'Não' or '0':
+        elif nova_tarefa == 'Não' or nova_tarefa == '0':
             opcao_invalida = False
         else:
-            print('Opção inválida!')
-            nova_tarefa = input(
-                'Deseja realizar outra operação? 1 - Sim / 0 - Não : ')
+            print('Opção inválida! Tente novamente')
 
 
 def tarefas():
@@ -72,6 +71,7 @@ def tarefas():
             holerite = Holerite(mes_ano, matricula, faltas)
             holerite.gerar_holerite()
         elif tarefa == '7':
+            opcao_invalida = False
             cadastro = Cadastro()
             mes_ano = input("Insira mês e ano no formato MM/AAAA: ")
             gerar_todos_holerites(cadastro, mes_ano)
