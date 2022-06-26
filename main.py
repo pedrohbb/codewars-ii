@@ -1,5 +1,5 @@
 from src.business.cadastros import Cadastro
-from src.entities.holerite import Holerite
+from src.entities.holerite import Holerite, gerar_todos_holerites
 
 
 def main():
@@ -61,11 +61,11 @@ def tarefas():
             matricula = input("Matricula do funcionário: ")
             mes_ano = input("Insira mês e ano no formato AAAA-MM: ")
             holerite = Holerite(matricula, mes_ano)
-            return holerite.gerar_holerite()
+            holerite.gerar_holerite()
         elif tarefa == '7':
             cadastro = Cadastro()
-            mes_ano = input("Insira mês e ano no formato AAAA-MM: ")
-            return Holerite.gerar_todos_holerites(cadastro, mes_ano)
+            mes_ano = input("Insira mês e ano no formato MM/AAAA: ")
+            gerar_todos_holerites(cadastro, mes_ano)
         else:
             print('Opção inválida!')
 
