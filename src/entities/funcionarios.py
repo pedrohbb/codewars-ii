@@ -1,5 +1,7 @@
-import os
+from docs.db import connection
 import mysql.connector
+
+
 class Funcionario():
 
     def __init__(self, nome: str, cpf: str, data_admissao: str, codigo_cargo: int, comissao: bool):
@@ -8,38 +10,26 @@ class Funcionario():
         self.__data_admissao: str = data_admissao
         self.__codigo_cargo: int = codigo_cargo
         self.__comissao: bool = comissao
-        self.__matricula: int = self.gerar_matricula(
-            nome, cpf, data_admissao, codigo_cargo, comissao)
+        self.__matricula: int = Funcionario.matricular(nome, cpf, data_admissao, codigo_cargo, comissao)
         
     @staticmethod
-    def gerar_matricula(nome: str, cpf: str, data_admissao: str, codigo_cargo: int, comissao: bool) -> int:
-        
-        # AO FINAL REMOVER DAQUI A CONSULTA E COLOCAR UMA CONSULTA GERAL PARA TODOS
+    def matricular(nome: str, cpf: str, data_admissao: str, codigo_cargo: int, comissao: bool) -> int:
 
-        user = os.getenv('USER')
-        password = os.getenv('PASSWORD')
-        host = os.getenv('HOST')
-        database = os.getenv('DATABASE')
-
-        cnx = mysql.connector.connect(user=user,
-                                      password=password,
-                                      host=host,
-                                      database=database)
-        
-        # TERMINA AQUI A CONSULTA
-        
+        cnx = mysql.connector.connect(**connection.config)
         cursor = cnx.cursor()
         
-        insert_funcionario = (
-            f"INSERT INTO funcionarios (nome, cpf, data_admissao, codigo_cargo, comissao) VALUES ('{nome}', {cpf}, '{data_admissao}', {codigo_cargo}, '{str(comissao)}');")
+        insert_funcionario = (f"""
+                            INSERT INTO funcionarios nome, cpf, data_admissao, codigo_cargo, comissao 
+                            VALUES ('{nome}', {cpf}, '{data_admissao}', {codigo_cargo}, '{str(comissao)}');
+        """)
 
         cursor.execute(insert_funcionario)
+
         cnx.commit()
 
         cursor = cnx.cursor()
 
-        consultar_matricula = (
-            f"SELECT matricula FROM funcionarios WHERE cpf = {cpf} AND data_admissao = '{data_admissao}';")
+        consultar_matricula = (f"SELECT matricula FROM funcionarios WHERE cpf = {cpf} AND data_admissao = '{data_admissao}';")
 
         cursor.execute(consultar_matricula)
 

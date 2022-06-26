@@ -1,95 +1,127 @@
-import os
 import mysql.connector
-from entities.funcionarios import Funcionario
+from mysqlx import IntegrityError
+from docs.db import connection
+from src.entities.funcionarios import Funcionario
+
 
 class Cadastro():
-
-    def __init__(self):
-        self.__lista = []
-    
-    @property
-    def lista(self):
-        return self.__lista
-    
     
     def inserir(self) -> None:
         
         nome = input('Digite o nome do funcionário: ')
         cpf = int(input('Digite o CPF do funcionário: '))
-        data_admissao = input('Digite a data de admissão do funcionário: ')
-        codigo_cargo = int(input('Digite o cargo do funcionário: '))
-        comissao = input('O funcionário possui comissão? S ou N: ')
-        comissao = list(map(lambda x: 1 if comissao == 'S' else 0, comissao))[0]
+
+        try:
+            self.consultar(cpf)
+            raise IntegrityError("Esse CPF já está cadastrado!") 
+
+        except IndexError:
+            data_admissao = input('Digite a data de admissão do funcionário: ')
+            codigo_cargo = int(input('Digite o cargo do funcionário: '))
+            comissao = input('O funcionário possui comissão? S ou N: ')
+            comissao = list(map(lambda x: 1 if comissao == 'S' else 0, comissao))[0]
         
         Funcionario(nome, cpf, data_admissao, codigo_cargo, comissao)
-        
-        
-        
-        # cnx = mysql.connector.connect(user='user', password='password',
-        #                               host='host',
-        #                               database='codewars-ii')
 
-        # cursor = cnx.cursor()
-        
-        # insert_funcionario = (
-        #     f"""INSERT INTO funcionarios (nome, cpf, data_admissao, codigo_cargo, comissao) 
-        #     VALUES ('{nome}', {funcionario.cpf}, '{funcionario.data_admissao}', {funcionario.codigo_cargo},{funcionario.comissao});""")
+    def excluir(self, chave: int) -> None:
+        """
+        :chave: int - matrícula ou cpf
+        """
 
-        # cursor.execute(insert_funcionario)
-        # cnx.commit()
-
-        # cursor = cnx.cursor()
-
-
-
-    def exclusao(self, chave: Funcionario or int) -> None:
-        cnx = mysql.connector.connect(user='user', password='password',
-                                      host='host',
-                                      database='codewars-ii')
+        cnx = mysql.connector.connect(**connection.config)
         cursor = cnx.cursor()
         
-        if isinstance(chave, Funcionario):
-            chave = chave.matricula
+        deletar_funcionario = (f"DELETE FROM funcionarios WHERE {Cadastro.assinatura(chave)} = {chave};")
 
-        deletar_funcionario = (f"DELETE FROM funcionarios WHERE matricula = {chave}")
-
-        cursor.execute(deletar_funcionario, [chave])
+        cursor.execute(deletar_funcionario)
 
         cnx.commit()
 
-        cursor.close()
         cnx.close()
 
-    def consulta(self, funcionario: Funcionario):
-        cnx = mysql.connector.connect(user='user', password='password',
-                                      host='host',
-                                      database='codewars-ii')
-        cursor = cnx.cursor()
-       
-        consultar_matricula = (
-            f"SELECT matricula FROM funcionarios WHERE cpf = {cpf} AND data_admissao = '{data_admissao}';")
+    def consultar(self, chave: int):
+        """
+        :chave: int - matrícula ou cpf
+        """
 
-        cursor.execute(consultar_funcionario, {
-            "nome": funcionario.nome,
-            "cpf": funcionario.cpf,
-            "data_admissao": funcionario.data_admissao,
-            "codigo_cargo": funcionario.cpf,
-            "comissao": funcionario.comissao
-        })
+        cnx = mysql.connector.connect(**connection.config)
+        cursor = cnx.cursor()
+
+        consultar_matricula = (f"""
+                            SELECT matricula, nome, cpf, cargo, salario_base, comissao 
+                            FROM funcionarios WHERE {Cadastro.assinatura(chave)} = {chave};
+        """)
+
+        cursor.execute(consultar_matricula)
+
+        query = cursor.fetchall()[0]
+
+        campo = ['matricula', 'nome', 'cpf', 'cargo', 'data_admissao', 'comissao']
+
+        resultado_consulta = {}
+        for i in range(len(campo)):
+            resultado_consulta[campo[i]] = query[i]
+            
+        cnx.close()
+
+        return resultado_consulta
+
+    def alterar(self):
+
+        cnx = mysql.connector.connect(**connection.config)
+        cursor = cnx.cursor()
+        
+        chave = int(input("Insira a matrícula ou cpf do funcionário: "))
+
+        campos = ['matricula', 'nome', 'cpf', 'cargo', 'data_admissao', 'comissao'] 
+        campo = campos[int(input(f"""
+                         Digite 1 para modificar a MATRÍCULA,
+                                2 para modificar o NOME,
+                                3 para modificar o CPF,
+                                4 para modificar o CARGO,
+                                5 para modificar a DATA DE ADMISSÃO ou
+                                6 para modificar o RECEBER COMISSÃO:
+        """)) - 1]
+
+        novo_dado = input(f"{campo.capitalize()}: ")
+
+        if campo == 'cpf' or 'matricula':
+            alterar_funcionario = (f"UPDATE funcionarios SET {campo} = {novo_dado} WHERE {Cadastro.assinatura(chave)} = {chave};")
+        else:
+            alterar_funcionario = (f"UPDATE funcionarios SET {campo} = '{novo_dado}' WHERE {Cadastro.assinatura(chave)} = {chave};")
+        
+        cursor.execute(alterar_funcionario)
 
         cnx.commit()
 
-        cursor.close()
         cnx.close()
 
-    
-    # def consulta(self, chave: str or int):
-    #     return self.lista[]
 
-    # def alteracao(self, chave: str or int):
+    def listar(self):
 
-    
-    # def assinatura(chave: str or int):
-    #     if isinstance(chave, str):
-    #         nome = chave
-    #         result_query = consultas.inseri
+        cnx = mysql.connector.connect(**connection.config)
+
+        cursor = cnx.cursor()
+
+        consultar_dados = ("SELECT matricula, nome, cpf, cargo, salario_base, comissao FROM funcionarios;")
+
+        cursor.execute(consultar_dados)
+
+        resultado_consulta = cursor.fetchall()
+
+        listagem = {}
+        for elem in resultado_consulta:
+            listagem[elem[0]] = elem[1]
+
+        cnx.close()
+
+        return listagem
+
+    @staticmethod
+    def assinatura(chave: int):
+
+        if len(str(chave)) == 6:
+            assinatura = 'matricula'
+        if len(str(chave)) == 11:
+            assinatura = 'cpf'
+        return assinatura
