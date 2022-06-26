@@ -5,11 +5,11 @@ from src.business.cadastros import Cadastro
 
 class Holerite():
     
-    def __init__(self, mes_ano: str, matricula: int):
+    def __init__(self, mes_ano: str, matricula: int, faltas):
         self.__mes_ano = mes_ano
         self.__matricula: int = matricula
-        self.__salario_base: float = self.consultar_salario_bruto() #modificar salario_base p/ salario_bruto?
-        self.__faltas: float = 0 #int(input("Qtd faltas não justificadas:  ")   
+        self.__salario_base: float = self.consultar_salario_base() 
+        self.__faltas: float = faltas   
         self.__valor_faltas: float = (self.salario_base / 22.5) * self.faltas
         self.__valor_comissao: float = self.consultar_valor_comissao()
         self.__base_de_calculo: float = self.calcular_base_de_calculo()
@@ -57,7 +57,7 @@ class Holerite():
     def fgts(self) -> float:
         return self.__fgts
 
-    def consultar_salario_bruto(self) -> float:
+    def consultar_salario_base(self) -> float:
         
         cnx = mysql.connector.connect(**connection.config)
         cursor = cnx.cursor()
@@ -164,7 +164,7 @@ class Holerite():
         cnx = mysql.connector.connect(**connection.config)
         cursor = cnx.cursor()
 
-        consultar_holerite = (f"SELECT * FROM holerite WHERE matricula = {self.matricula};")
+        consultar_holerite = (f"SELECT * FROM holerite WHERE matricula = {self.matricula} AND mes/ano = {self.mes_ano};")
 
         cursor.execute(consultar_holerite)
 
@@ -177,14 +177,14 @@ class Holerite():
         cnx.close()   
 
         return resultado_consulta
-    
-    @staticmethod
-    def gerar_todos_holerites(cadastro: Cadastro, mes_ano: str) -> None:
-        lista_funcionarios = cadastro.listar()
 
-        lst = []
-        for matricula, nome in lista_funcionarios:
-            holerite = Holerite(mes_ano, matricula)
-            lst.append(holerite.gerar_holerite())
-        
-        return lst
+
+def gerar_todos_holerites(cadastro: Cadastro, mes_ano: str) -> None:
+    lista_funcionarios = cadastro.listar()
+
+    lst = []
+    for matricula, nome in lista_funcionarios:
+        holerite = Holerite(mes_ano, matricula)
+        lst.append(holerite.gerar_holerite())
+    
+    return lst

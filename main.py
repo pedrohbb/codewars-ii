@@ -4,6 +4,8 @@ from src.entities.holerite import Holerite
 
 def main():
 
+    print('Bem vindo ao sistema de folha de pagamento da XPTO Alimentos! \n\n')
+
     tarefas()
 
     nova_tarefa = input('Deseja realizar outra operação? 1 - Sim / 0 - Não : ')
@@ -13,7 +15,7 @@ def main():
     while opcao_invalida:
 
         if nova_tarefa == 'Sim' or '1':
-            main()
+            tarefas()
         elif nova_tarefa == 'Não' or '0':
             opcao_invalida = False
         else:
@@ -23,9 +25,7 @@ def main():
 def tarefas():
 
     opcao_invalida = True
-
-    print('Bem vindo ao sistema de folha de pagamento da XPTO Alimentos! \n\n')
-
+   
     while opcao_invalida:
         
         tarefa = input(
@@ -49,13 +49,13 @@ def tarefas():
             cadastro.excluir()
         elif tarefa == '3':
             opcao_invalida = False
-            return cadastro.consultar()
+            print(cadastro.consultar())
         elif tarefa == '4':
             opcao_invalida = False
             cadastro.alterar()
         elif tarefa == '5':
             opcao_invalida = False
-            return cadastro.listar()
+            print(cadastro.listar())
         elif tarefa == '6':
             opcao_invalida = False
             matricula = input("Matricula do funcionário: ")
