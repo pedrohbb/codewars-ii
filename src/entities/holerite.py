@@ -16,7 +16,6 @@ class Holerite():
         self.__fgts: float = self.base_de_calculo * 0.08
         self.__inss: float = self.calcular_inss()
         self.__irrf: float = self.calcular_irrf()
-        self.inserir_holerite_db()
         
     @property
     def matricula(self) -> int:
