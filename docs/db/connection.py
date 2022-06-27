@@ -1,8 +1,14 @@
-from dotenv import load_dotenv
+# arquivo = open('.env')
+# config = {}
+# keys = ['user', 'password', 'host']
+# count = 0
+# for line in arquivo:
+#   config[keys[count]] = line[:-1]
+#   count += 1
 
-config = {
-  'user': load_dotenv('USER'),
-  'password': load_dotenv('PASSWORD'),
-  'host': load_dotenv('HOST'),
-  'database': 'code_wars_ii',
-}
+# config['database'] = 'code_wars_ii'
+
+from dotenv import dotenv_values
+
+config = dotenv_values('.env')
+config['database'] = 'code_wars_ii'
