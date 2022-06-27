@@ -2,6 +2,7 @@ import mysql.connector
 from mysqlx import IntegrityError
 from docs.db import connection
 from src.entities.funcionarios import Funcionario
+from src.exceptions.campo_vazio_erro import CampoVazioErro
 
 
 class Cadastro():
