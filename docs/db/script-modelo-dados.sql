@@ -69,3 +69,21 @@ DEFAULT CHARACTER SET = utf8mb3;
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
+
+INSERT INTO `code_wars_ii`.`cargos` (codigo_cargo, descricao, salario_base, comissao)
+VALUES
+(10, 'Cientista de Dados', 10200, 0.1), 
+(20, 'Especialista em Business Intelligence', 7000, 0.08), 
+(30, 'Desenvolvedor Mobile Sênior', 6700, 0.07), 
+(31, 'Desenvolvedor Mobile Pleno', 3550, 0.06), 
+(32, 'Desenvolvedor Junior', 3000, 0.03), 
+(50, 'Gerente de Projetos', 8900, 0.08);
+
+
+INSERT INTO `code_wars_ii`.`funcionarios` (matricula, nome, cpf, data_admissao, codigo_cargo, comissao)
+VALUES
+(100001, 'Fulano de Tal', '12345678910', '2021-10-16', 10, '1'), 
+(100002, 'Ciclano da Silva', '98765432101', '2021-12-02', 50, '1'), 
+(100003, 'Mariazinha de Souza', '78945612378', '2022-01-03', 32, '1'), 
+(100004, 'Joãozinho Pereira', '98732145652', '2022-02-24', 31, '1'), 
+(100005, 'Beltrano José', '32314569870', '2022-04-15', 30, '1');
