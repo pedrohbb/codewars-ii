@@ -2,27 +2,38 @@ import mysql.connector
 from mysqlx import IntegrityError
 from docs.db import connection
 from src.entities.funcionarios import Funcionario
+from src.exceptions.campo_vazio_erro import CampoVazioErro
 
 
 class Cadastro():
 
-    def inserir(self) -> None:
+    def inserir(self) -> None: 
 
         nome = input('Digite o nome do funcionário: ')
-        cpf = int(input('Digite o CPF do funcionário: '))
 
-        try:
-            self.consultar(cpf)
-            raise IntegrityError("Esse CPF já está cadastrado!")
+        if len(nome) == 0:
+            raise CampoVazioErro("Inserção inválida!") 
 
-        except IndexError:
-            data_admissao = input('Digite a data de admissão do funcionário: ')
-            codigo_cargo = int(input('Digite o cargo do funcionário: '))
-            comissao = input('O funcionário possui comissão? S ou N: ')
-            comissao = list(
-                map(lambda x: 1 if comissao == 'S' else 0, comissao))[0]
+        else:     
+            cpf = int(input('Digite o CPF do funcionário (sem pontos e hífen): '))
+               
+            try:
+                self.consultar(cpf)
+                raise IntegrityError("Esse CPF já está cadastrado!")
 
-        Funcionario(nome, cpf, data_admissao, codigo_cargo, comissao)
+            except IndexError:
+                #testar formato da data
+                data_admissao = input('Digite a data de admissão do funcionário no formato AAAA-MM-DD: ')
+                if len(data_admissao) == 0:
+                    raise CampoVazioErro("Inserção inválida!") 
+
+                else:
+                    codigo_cargo = int(input('Digite o cargo do funcionário: '))
+                    comissao = input('O funcionário possui comissão? S ou N: ').upper()
+                    comissao = list(
+                        map(lambda x: 1 if comissao == 'S' else 0, comissao))[0]
+
+                    Funcionario(nome, cpf, data_admissao, codigo_cargo, comissao)
 
     def excluir(self, chave: int) -> None:
         """
