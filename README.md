@@ -54,7 +54,7 @@ Stone e How Bootcamps :green_heart: :purple_heart:
        <li>Arquivo .env oculto no repositório, no qual cada utilizador deverá registrar suas variáveis de acesso ao MySQL, garantindo maior segurança</a>
       </ul>
 </ul>
-       
+</ul>
 <b>:x: Pendentes:</b>
 <ul>
    <li>Do enunciado:</li>
