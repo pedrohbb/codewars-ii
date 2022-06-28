@@ -40,9 +40,15 @@ Stone e How Bootcamps :green_heart: :purple_heart:
       <li>Geração de holerite de todos os funcionários em um mês específico</li>
       *Obs.: os holerites gerados são salvos automaticamente no banco de dados, exceto caso já tenha sido salvo anteriormente um holerite para a mesma matrícula e mesmo mês
      </ul>
-     <li>Tratamento de exceptions</li>
+     <li>Tratamento de exceções:</li>
+     <ul>
+       <li>Não permitir a inclusão de dois funcionários com o mesmo CPF</li>
+       <li>Não permitir a inclusão de dados brancos ou nulos (validação de cada campo dentro de critérios específicos) na inserção e na alteração de dados de funcionários</li>
+       <li>Emitir mensagem de erro caso a chave buscada (matrícula ou CPF) não seja encontrada, nas funções exclusão, consulta e alteração</li>
+       <li>Emitir mensagem de erro na função de listagem, caso não haja funcionários cadastrados</li>
      <li>Extras:</li>
      <ul>
+       <li>Geração automática de número de matrícula de 6 dígitos na inclusão de funcionários, por auto incremento no banco de dados, iniciando em 100001 e mantendo o padrão de sequência</li>
        <li>Modelo de holerite gráfico é gerado nas funções de holerite</li>
        <li>Arquivo connection com as configurações de conexão, para evitar repetição em todos os módulos</li>
        <li>Arquivo .env oculto no repositório, no qual cada utilizador deverá registrar suas variáveis de acesso ao MySQL, garantindo maior segurança</a>
