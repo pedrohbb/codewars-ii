@@ -12,8 +12,8 @@ Stone e How Bootcamps :green_heart: :purple_heart:
 <ul>
   <li><a href="https://github.com/barbaramir" target="_blank">Bárbara Mirelli de Oliveira Pinto</a></li>
   <li><a href="https://github.com/LorianeMartins" target="_blank">Loriane Moreira Martins</a></li>
-  <li><a href="https://github.com/pedrohbb" target="_blank"></a>Pedro Henrique Birindiba Batista</li>
-  <li><a href="https://github.com/renatalobo" target="_blank"></a>Renata Lobo Alves</li>
+  <li><a href="https://github.com/pedrohbb" target="_blank">Pedro Henrique Birindiba Batista</a></li>
+  <li><a href="https://github.com/renatalobo" target="_blank">Renata Lobo Alves</a></li>
   <li><a href="https://github.com/thaifurforo" target="_blank">Thainara Lessa Furforo</a></li>
 </ul>
 <br>
