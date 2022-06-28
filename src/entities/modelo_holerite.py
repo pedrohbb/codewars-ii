@@ -30,8 +30,7 @@ class Modelo_Holerite():
         cnx = mysql.connector.connect(**connection.config)
         cursor = cnx.cursor()
 
-        consultar_salario = (
-            f""" SELECT descricao, comissao FROM cargos WHERE codigo_cargo = {cargo}; """)
+        consultar_salario = (f" SELECT descricao, taxa_comissao FROM cargos WHERE codigo_cargo = {cargo};")
 
         cursor.execute(consultar_salario)
 

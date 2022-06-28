@@ -1,4 +1,3 @@
-from sqlite3 import IntegrityError
 from src.business.cadastros import Cadastro
 from src.entities.holerite import Holerite, gerar_todos_holerites
 from src.exceptions.not_found_error import NotFoundError
@@ -12,34 +11,28 @@ def main():
     print('Bem vindo ao sistema de folha de pagamento da XPTO Alimentos!')
 
     menu()
-    print('\n')
 
+    enunciado = "\n\n\
+    1 - Realizar nova operação \n\
+    0 - Encerrar o sistema : "
 
     while True:
-
-        enunciado = "\
-        1 - Realizar nova operação \n\
-        0 - Encerrar o sistema : "
-        
         nova_tarefa = input(enunciado)
-
-        if nova_tarefa not in '10':
+        if nova_tarefa not in list('10'):
             print('\nOpção inválida! Tente novamente\n')
-            continue
         elif nova_tarefa == '1':
-            menu()
             print('\n')
+            menu()
         else:
             print('\nSistema encerrado!')
             break
 
 def menu():
 
-    print("\n")
     enunciado = "Selecione uma opção no menu: \n\
         1 - Cadastrar novo funcionário\n\
         2 - Excluir funcionário do cadastro \n\
-        3 - Consultar funcionário por chave \n\
+        3 - Consultar funcionário por matricula ou cpf \n\
         4 - Alterar dados de um funcionário \n\
         5 - Listar todos os funcionários cadastrados \n\
         6 - Gerar holerite de um funcionário específico no mês escolhido \n\
@@ -47,33 +40,36 @@ def menu():
 
     num_tarefas = enunciado.count('\n')
 
-    opcao = input(enunciado)
+    while True:
+        opcao = input(enunciado)
+        if opcao not in [str(i) for i in range(1,num_tarefas+1)]:
+            print("\nOpção Inválida! Tente novamente\n")
+            continue
+        break
 
-    while opcao not in [str(i) for i in range(1,num_tarefas+1)]:
-        print("\nOpção Inválida! Tente novamente\n")
-        menu()
+    # opcao = input(enunciado)
+
+    # if opcao not in [str(i) for i in range(1,num_tarefas+1)]:
+    #     print("\nOpção Inválida! Tente novamente\n")
+    #     return
 
     ####---------Submenu (início)---------####
 
-    if opcao == '4':
-        sub_opcao = submenu_tarefa4()
-    else:
-        sub_opcao = None
+    # if opcao == '4':
+    #     opcao = submenu_tarefa4()
 
     #####---------Submenu (fim)---------######
 
     try:
-        tarefas(opcao, sub_opcao)
+        tarefas(opcao)
     except NotFoundError as nfderror: 
         print('\n'+nfderror.args[0]+'\n')
     except NotValidFormatError as nvferror:
         print('\n'+nvferror.args[0]+'\n')
     except DuplicatedEntryError as dtderror: 
         print('\n'+dtderror.args[0]+'\n')
-    except IntegrityError as itgerror:
-        print('\n'+itgerror.args[0]+'\n')
 
-def tarefas(opcao, sub_opcao=None):
+def tarefas(opcao):
 
     cadastro = Cadastro()
     opcao = int(opcao)
@@ -85,28 +81,35 @@ def tarefas(opcao, sub_opcao=None):
         data_admissao = input('Digite a data de admissão do funcionário: ')
         codigo_cargo = input('Digite o cargo do funcionário: ')
         comissao = input('O funcionário possui comissão? 1 - Sim / 0 - Não: ')
+        print('\n')
         cadastro.inserir(nome, cpf, data_admissao, codigo_cargo, comissao)
     elif opcao == 2:
         chave = input('Insira a matrícula ou CPF do funcionário a ser excluído: ')
+        print('\n')
         cadastro.excluir(chave)
     elif opcao == 3:
         chave = input('Insira a matrícula ou CPF do funcionário a ser consultado: ')
+        print('\n')
         print(cadastro.consultar(chave))
     elif opcao == 4:
         chave = input("Insira a matrícula ou cpf do funcionário: ")
-        dado = input(f"{chave.capitalize()}: ")
+        sub_opcao = submenu_tarefa4()
+        print('\n')
+        dado = input(f"{sub_opcao} novo(a): ")
         cadastro.alterar(chave, sub_opcao, dado)
     elif opcao == 5:
         print(cadastro.listar())
     elif opcao == 6:
         chave = input('Insira a matrícula ou CPF do funcionário a ser consultado: ')
         mes_ano = input("Insira mês e ano no formato MM/AAAA: ")
-        faltas = int(input("Informe o número de faltas do funcionário no mês: "))
+        faltas = float(input("Informe o número de faltas do funcionário no mês: "))
+        print('\n')
         holerite = Holerite(mes_ano, chave, faltas)
         holerite.gerar_holerite()
     elif opcao == 7:
         cadastro = Cadastro()
         mes_ano = input("Insira mês e ano no formato MM/AAAA: ")
+        print('\n')
         gerar_todos_holerites(cadastro, mes_ano)
 
 def submenu_tarefa4():
@@ -118,14 +121,14 @@ def submenu_tarefa4():
         4 para modificar o CARGO ou\n\
         5 para modificar o RECEBE COMISSÃO: "
     
-    campos = ['nome', 'cpf', 'data_admissao', 'cargo', 'comissao'] 
+    campos = ['nome', 'cpf', 'data_admissao', 'codigo_cargo', 'comissao'] 
     while True:
         campo = input(enunciado_tar4)
-        if campo not in '12345':
+        if campo not in list('12345'):
             print("\nCampo inválido! Tente novamente\n")
             continue
 
-        campo = campos[int(campo)]
+        campo = campos[int(campo)-1]
         break    
 
     return campo

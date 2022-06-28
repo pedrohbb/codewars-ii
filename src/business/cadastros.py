@@ -56,11 +56,13 @@ class Cadastro():
             raise DuplicatedEntryError("Esse CPF já está cadastrado!")
         except NotFoundError:
             campos = (nome, cpf, data_admissao, codigo_cargo, comissao)
+            count = 0
             for atrib in campos:
-                if Cadastro.validacao(atrib) == -1:
-                    raise NotValidFormatError(f"{atrib} em formato inválido")
+                if Cadastro.validacao(atrib) != count:
+                    raise NotValidFormatError(f"{atrib} - campo em formato inválido")
+                count += 1
             Funcionario(*campos)
-            print("Funcionario cadastrado com sucesso")
+            print("Funcionario cadastrado com sucesso\n")
 
     def excluir(self, chave: int) -> None:
         """
@@ -79,7 +81,7 @@ class Cadastro():
         elif chave_tipo == 5:
             deletar_funcionario = (f"DELETE FROM funcionarios WHERE matricula = {chave};")
         else:
-            raise NotValidFormatError("Matrícula/cpf não reconhecida(o)")
+            raise NotValidFormatError("Matrícula/cpf não reconhecida(o)\n")
 
         cursor.execute(deletar_funcionario)
 
@@ -87,10 +89,15 @@ class Cadastro():
 
         cnx.close()
 
-        print('Funcionário excluído com sucesso!')
+        print('Funcionário excluído com sucesso!\n')
 
 
     def alterar(self, chave, campo, dado):
+        campos = ['nome', 'cpf', 'data_admissao', 'codigo_cargo', 'comissao']
+        aux = [0,1,2,3,4]
+        campos = dict(list(zip(campos,aux)))
+        campos['invalido'] = -1
+
 
         cnx = mysql.connector.connect(**connection.config)
         cursor = cnx.cursor()
@@ -99,14 +106,17 @@ class Cadastro():
 
         chave_tipo = Cadastro.validacao(chave)
 
-        dado_tipo = Cadastro.validacao(dado)
-
-        if dado_tipo == 1: 
+        if chave_tipo == 1: 
             alterar_funcionario = (f"UPDATE funcionarios SET {campo} = '{dado}' WHERE cpf = '{chave}';")
         elif chave_tipo == 5:
             alterar_funcionario = (f"UPDATE funcionarios SET {campo} = {dado} WHERE matricula = {chave};")
         else:
             raise NotValidFormatError("Matrícula/cpf não reconhecida(o)")
+
+        dado_tipo = Cadastro.validacao(dado)
+
+        if campos[campo] != dado_tipo:
+            raise NotValidFormatError(f"{campo} em formato inválido!")
 
         cursor.execute(alterar_funcionario)
 
@@ -137,13 +147,23 @@ class Cadastro():
     def validacao(entry):
         nome = 0
         cpf = 1
-        date = 2
-        cargo = 3
+        data_admissao = 2
+        codigo_cargo = 3
         comissao = 4
         matricula = 5
+        mes_ano = 6
+        faltas = 7
         invalido = -1
+
+        if isinstance(entry, int):
+            if entry >= 100000:
+                return matricula
         
-        entry = str(entry)
+        if isinstance(entry, float):
+            if 0.03 <= entry <= 0.1:    
+                return comissao
+            if entry == 0 or (0.1 < entry <= 22.5):
+                return faltas
 
         if entry == '1' or entry == '0':
             return comissao
@@ -152,7 +172,7 @@ class Cadastro():
 
         if set(entry).issubset(algs):
             if len(entry) == 2:
-                return cargo
+                return codigo_cargo
             elif len(entry) == 6:
                 return matricula
             elif len(entry) == 11:
@@ -161,9 +181,12 @@ class Cadastro():
                 return invalido
         
         if set(entry).issubset(algs.union(set("-"))):
-            if entry.count('-') == 2:
-                if entry[4] == entry[7] == '-':
-                    return date           
+            if (entry[4] == entry[7] == '-') and len(entry) == 10:
+                return data_admissao           
+
+        if set(entry).issubset(algs.union(set("/"))):
+            if entry[2] == "/" and len(entry) == 7:
+                return mes_ano
 
         noums_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ" + "'" + " "
         noums_chars += "ABCDEFGHIJKLMNOPQRSTUVWXYZ".lower()
