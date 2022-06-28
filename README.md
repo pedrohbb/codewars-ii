@@ -16,7 +16,6 @@ Stone e How Bootcamps :green_heart: :purple_heart:
   <li><a href="https://github.com/renatalobo" target="_blank">Renata Lobo Alves</a></li>
   <li><a href="https://github.com/thaifurforo" target="_blank">Thainara Lessa Furforo</a></li>
 </ul>
-<br>
 
 ## :bookmark_tabs:	Etapas
 
@@ -64,9 +63,9 @@ Stone e How Bootcamps :green_heart: :purple_heart:
    <li>Extras:</li>
    <ul>
      <li>Revisão do diagrama UML de classes</li>
-     <li>Retirar o hardcoding do script</li>
+     <li>Retirar o hardcoding do script nas consultas ao banco de dados</li>
      <li>Criar banco de dados de funcionários inativos para arquivamento dos funcionários cujos contratos tenham sido rescindidos, incluindo "data rescisão"</li>
-     <li>Holerite: permitida a geração de holerite de funcionários inativos se o mês refência for entre a admissão e a rescisão</li>
      <li>Adicionar função: alterar dados do holerite (caso tenham sido inseridos dados errados na geração inicial do holerite)</li>
+     <li>Fazer tratamento de exceções para que só possa ser emitido holerite de um mês que esteja entre a admissão e a rescisão do funcionário (caso inativo) ou entre a admissão e a data atual (caso inativo)</li>
    </ul>
 </ul>
