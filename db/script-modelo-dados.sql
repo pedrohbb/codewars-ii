@@ -61,7 +61,11 @@ CREATE TABLE IF NOT EXISTS `code_wars_ii`.`holerite` (
   `inss` FLOAT NOT NULL,
   `irrf` FLOAT NOT NULL,
   `fgts` FLOAT NOT NULL,
-   `salario_liquido` FLOAT NOT NULL)
+  `salario_liquido` FLOAT NOT NULL,
+INDEX `fk_Holerite_Funcionarios_idx` (`matricula` ASC) VISIBLE,
+  CONSTRAINT `fk_Holerite_Funcionarios`
+    FOREIGN KEY (`matricula`)
+    REFERENCES `code_wars_ii`.`funcionarios` (`matricula`))
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb3;
 
