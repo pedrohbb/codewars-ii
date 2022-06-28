@@ -1,26 +1,27 @@
-from docs.db import connection
+from db import connection
 import mysql.connector
 
 
 class Funcionario():
 
-    def __init__(self, nome: str, cpf: str, data_admissao: str, codigo_cargo: int, comissao: bool):
+    def __init__(self, nome: str, cpf: str, data_admissao: str, codigo_cargo: int, comissao: str):
         self.__nome: str = nome
         self.__cpf: str = cpf
         self.__data_admissao: str = data_admissao
+        self.__comissao: str = comissao
         self.__codigo_cargo: int = codigo_cargo
-        self.__comissao: bool = comissao
-        self.__matricula: int = Funcionario.matricular(
-            nome, cpf, data_admissao, codigo_cargo, comissao)
+        self.__matricula: int = Funcionario.matricular(nome, cpf, data_admissao, codigo_cargo, comissao)
 
     @staticmethod
-    def matricular(nome: str, cpf: str, data_admissao: str, codigo_cargo: int, comissao: bool) -> int:
+    def matricular(nome: str, cpf: str, data_admissao: str, codigo_cargo: int, comissao: str) -> int:
 
         cnx = mysql.connector.connect(**connection.config)
         cursor = cnx.cursor()
 
-        insert_funcionario = (f"""INSERT INTO funcionarios (nome, cpf, data_admissao, codigo_cargo, comissao) \
-                              VALUES ('{nome}', '{str(cpf)}', '{data_admissao}', {codigo_cargo}, '{str(comissao)}');""")
+        insert_funcionario = (f"""\
+                INSERT INTO funcionarios (nome, cpf, data_admissao, codigo_cargo, comissao)\
+                VALUES ('{nome}', '{cpf}', '{data_admissao}', {codigo_cargo}, '{comissao}');\
+        """)
 
         cursor.execute(insert_funcionario)
 
@@ -28,8 +29,10 @@ class Funcionario():
 
         cursor = cnx.cursor()
 
-        consultar_matricula = (f"""SELECT matricula FROM funcionarios WHERE cpf = '{str(cpf)}'
-                               AND data_admissao = '{data_admissao}';""")
+        consultar_matricula = (f"""\
+                    SELECT matricula FROM funcionarios WHERE cpf = '{cpf}'\
+                    AND data_admissao = '{data_admissao}';\
+        """)
 
         cursor.execute(consultar_matricula)
 
