@@ -1,5 +1,5 @@
 import mysql.connector
-from docs.db import connection
+from db import connection
 from src.entities.modelo_holerite import Modelo_Holerite
 from src.business.cadastros import Cadastro
 

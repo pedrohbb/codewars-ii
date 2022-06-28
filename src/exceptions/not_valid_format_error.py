@@ -1,5 +1,7 @@
-class BaseErros(Exception):
-    
+from .base_error import BaseError
+
+
+class NotValidFormatError(BaseError):
+
     def __init__(self, *args: object) -> None:
-        self.mensagem = args[0]
         super().__init__(*args)

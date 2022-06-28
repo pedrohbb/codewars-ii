@@ -1,39 +1,66 @@
 import mysql.connector
-from mysqlx import IntegrityError
-from docs.db import connection
+from db import connection
 from src.entities.funcionarios import Funcionario
-from src.exceptions.campo_vazio_erro import CampoVazioErro
+from src.exceptions.not_found_error import NotFoundError
+from src.exceptions.duplicated_entry_error import DuplicatedEntryError
+from src.exceptions.not_valid_format_error import NotValidFormatError
 
 
 class Cadastro():
 
-    def inserir(self) -> None: 
+    def consultar(self, chave: int):
+        """
+        :chave: int - matrícula ou cpf
+        """
 
-        nome = input('Digite o nome do funcionário: ')
+        chave_tipo = Cadastro.validacao(chave)
 
-        if len(nome) == 0:
-            raise CampoVazioErro("Inserção inválida!") 
+        if chave_tipo == 1: 
+            consultar_chave = (f"""\
+                            SELECT matricula, nome, cpf, data_admissao, codigo_cargo, comissao\
+                            FROM funcionarios WHERE cpf = '{chave}';\
+        """)
+        elif chave_tipo == 5:
+            consultar_chave = (f"""\
+                            SELECT matricula, nome, cpf, data_admissao, codigo_cargo, comissao\
+                            FROM funcionarios WHERE matricula = {chave};\
+        """)
+        else:
+            raise NotValidFormatError("Matrícula/cpf não reconhecida(o)")
 
-        else:     
-            cpf = int(input('Digite o CPF do funcionário (sem pontos e hífen): '))
-               
-            try:
-                self.consultar(cpf)
-                raise IntegrityError("Esse CPF já está cadastrado!")
+        cnx = mysql.connector.connect(**connection.config)
+        cursor = cnx.cursor()
 
-            except IndexError:
-                #testar formato da data
-                data_admissao = input('Digite a data de admissão do funcionário no formato AAAA-MM-DD: ')
-                if len(data_admissao) == 0:
-                    raise CampoVazioErro("Inserção inválida!") 
+        cursor.execute(consultar_chave)
 
-                else:
-                    codigo_cargo = int(input('Digite o cargo do funcionário: '))
-                    comissao = input('O funcionário possui comissão? S ou N: ').upper()
-                    comissao = list(
-                        map(lambda x: 1 if comissao == 'S' else 0, comissao))[0]
+        query = cursor.fetchall()
+        
+        if len(query) == 0:
+            raise NotFoundError('Funcionário inexistente no cadastro.') 
+        else:
+            query = query[0]
+        
+        campos = ['matricula', 'nome', 'cpf', 'data_admissao', 'codigo_cargo', 'comissao']
+        resultado_consulta = {}
+        for i in range(len(campos)):
+            resultado_consulta[campos[i]] = query[i]
 
-                    Funcionario(nome, cpf, data_admissao, codigo_cargo, comissao)
+        cnx.close()
+
+        return resultado_consulta
+
+    def inserir(self, nome, cpf, data_admissao, codigo_cargo, comissao) -> None:  
+
+        try:
+            self.consultar(cpf)
+            raise DuplicatedEntryError("Esse CPF já está cadastrado!")
+        except NotFoundError:
+            campos = (nome, cpf, data_admissao, codigo_cargo, comissao)
+            for atrib in campos:
+                if Cadastro.validacao(atrib) == -1:
+                    raise NotValidFormatError(f"{atrib} em formato inválido")
+            Funcionario(*campos)
+            print("Funcionario cadastrado com sucesso")
 
     def excluir(self, chave: int) -> None:
         """
@@ -42,90 +69,50 @@ class Cadastro():
 
         cnx = mysql.connector.connect(**connection.config)
         cursor = cnx.cursor()
-        assinatura_chave = Cadastro.assinatura(chave)
 
-        try:
-            self.consultar(chave)
+        self.consultar(chave)
 
-            deletar_funcionario = (
-                f"""DELETE FROM funcionarios WHERE {assinatura_chave} =
-                {list(map(lambda x: str(chave) if x == 'cpf' else chave, assinatura_chave))[0]};""")
+        chave_tipo = Cadastro.validacao(chave)
 
-            cursor.execute(deletar_funcionario)
+        if chave_tipo == 1: 
+            deletar_funcionario = (f"DELETE FROM funcionarios WHERE cpf = '{chave}';")
+        elif chave_tipo == 5:
+            deletar_funcionario = (f"DELETE FROM funcionarios WHERE matricula = {chave};")
+        else:
+            raise NotValidFormatError("Matrícula/cpf não reconhecida(o)")
 
-            cnx.commit()
+        cursor.execute(deletar_funcionario)
 
-            cnx.close()
+        cnx.commit()
 
-            print('Funcionário excluído com sucesso!')
-        
-        except IndexError:
-            print('Funcionário inexistente no cadastro. ')
+        cnx.close()
 
-    def consultar(self, chave: int):
-        """
-        :chave: int - matrícula ou cpf
-        """
+        print('Funcionário excluído com sucesso!')
+
+
+    def alterar(self, chave, campo, dado):
 
         cnx = mysql.connector.connect(**connection.config)
         cursor = cnx.cursor()
 
-        consultar_matricula = (f"""
-                            SELECT matricula, nome, cpf, data_admissao, codigo_cargo, comissao 
-                            FROM funcionarios WHERE {Cadastro.assinatura(chave)} = {chave};
-        """)
+        self.consultar(chave)
 
-        cursor.execute(consultar_matricula)
+        chave_tipo = Cadastro.validacao(chave)
 
-        try:
-            query = cursor.fetchall()[0]
-            campo = ['matricula', 'nome', 'cpf',
-                     'data_admissao', 'codigo_cargo', 'comissao']
+        dado_tipo = Cadastro.validacao(dado)
 
-            resultado_consulta = {}
-            for i in range(len(campo)):
-                resultado_consulta[campo[i]] = query[i]
+        if dado_tipo == 1: 
+            alterar_funcionario = (f"UPDATE funcionarios SET {campo} = '{dado}' WHERE cpf = '{chave}';")
+        elif chave_tipo == 5:
+            alterar_funcionario = (f"UPDATE funcionarios SET {campo} = {dado} WHERE matricula = {chave};")
+        else:
+            raise NotValidFormatError("Matrícula/cpf não reconhecida(o)")
 
-            cnx.close()
+        cursor.execute(alterar_funcionario)
 
-            return resultado_consulta
+        cnx.commit()
 
-        except IndexError:
-            raise IndexError('Funcionário inexistente no cadastro. ')
-
-    def alterar(self):
-
-        cnx = mysql.connector.connect(**connection.config)
-        cursor = cnx.cursor()
-
-        chave = int(input("Insira a matrícula ou cpf do funcionário: "))
-
-        try:
-            self.consultar(chave)
-
-            campos = ['nome', 'cpf',
-                      'cargo', 'data_admissao', 'comissao']
-            campo = campos[int(input(f"""
-                            Digite 1 para modificar o NOME,
-                                    2 para modificar o CPF,
-                                    3 para modificar o CARGO,
-                                    4 para modificar a DATA DE ADMISSÃO ou
-                                    5 para modificar o RECEBER COMISSÃO:
-            """)) - 1]
-
-            novo_dado = input(f"{campo.capitalize()}: ")
-
-            alterar_funcionario = (
-                f"UPDATE funcionarios SET {campo} = '{novo_dado}' WHERE {Cadastro.assinatura(chave)} = {chave};")
-
-            cursor.execute(alterar_funcionario)
-
-            cnx.commit()
-
-            cnx.close()
-
-        except IndexError:
-            print('Funcionário inexistente!')
+        cnx.close()
 
     def listar(self):
 
@@ -147,10 +134,46 @@ class Cadastro():
         return listagem
 
     @staticmethod
-    def assinatura(chave: int):
+    def validacao(entry):
+        nome = 0
+        cpf = 1
+        date = 2
+        cargo = 3
+        comissao = 4
+        matricula = 5
+        invalido = -1
+        
+        entry = str(entry)
 
-        if len(str(chave)) == 6:
-            assinatura = 'matricula'
-        if len(str(chave)) == 11:
-            assinatura = 'cpf'
-        return assinatura
+        if entry == '1' or entry == '0':
+            return comissao
+
+        algs = set("0123456789")
+
+        if set(entry).issubset(algs):
+            if len(entry) == 2:
+                return cargo
+            elif len(entry) == 6:
+                return matricula
+            elif len(entry) == 11:
+                return cpf
+            else:
+                return invalido
+        
+        if set(entry).issubset(algs.union(set("-"))):
+            if entry.count('-') == 2:
+                if entry[4] == entry[7] == '-':
+                    return date           
+
+        noums_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ" + "'" + " "
+        noums_chars += "ABCDEFGHIJKLMNOPQRSTUVWXYZ".lower()
+        noums_chars += ("ãõáéíóúäëïöü" + "ãõáéíóúäëïöü".upper())
+        noums_chars = set(noums_chars)
+
+        if set(entry).issubset(noums_chars):
+            if set(entry).issubset(set("'" + " ")):
+                return invalido
+            else:
+                return nome
+        else:
+            return invalido
