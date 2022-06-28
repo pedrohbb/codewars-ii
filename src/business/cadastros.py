@@ -109,7 +109,7 @@ class Cadastro():
         if chave_tipo == 1: 
             alterar_funcionario = (f"UPDATE funcionarios SET {campo} = '{dado}' WHERE cpf = '{chave}';")
         elif chave_tipo == 5:
-            alterar_funcionario = (f"UPDATE funcionarios SET {campo} = {dado} WHERE matricula = {chave};")
+            alterar_funcionario = (f"UPDATE funcionarios SET {campo} = '{dado}' WHERE matricula = {chave};")
         else:
             raise NotValidFormatError("Matrícula/cpf não reconhecida(o)")
 

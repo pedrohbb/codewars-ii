@@ -8,20 +8,19 @@ from src.exceptions.duplicated_entry_error import DuplicatedEntryError
 def main():
 
     print("__________________________________________________________________\n")
-    print('Bem vindo ao sistema de folha de pagamento da XPTO Alimentos!')
+    print('Bem vindo ao sistema de folha de pagamento da XPTO Alimentos!\n')
 
     menu()
 
-    enunciado = "\n\n\
-    1 - Realizar nova operação \n\
-    0 - Encerrar o sistema : "
+    enunciado = "\
+        1 - Realizar nova operação \n\
+        0 - Encerrar o sistema : "
 
     while True:
         nova_tarefa = input(enunciado)
         if nova_tarefa not in list('10'):
             print('\nOpção inválida! Tente novamente\n')
         elif nova_tarefa == '1':
-            print('\n')
             menu()
         else:
             print('\nSistema encerrado!')
@@ -29,7 +28,7 @@ def main():
 
 def menu():
 
-    enunciado = "Selecione uma opção no menu: \n\
+    enunciado = "\nSelecione uma opção no menu: \n\
         1 - Cadastrar novo funcionário\n\
         2 - Excluir funcionário do cadastro \n\
         3 - Consultar funcionário por matricula ou cpf \n\
@@ -38,7 +37,7 @@ def menu():
         6 - Gerar holerite de um funcionário específico no mês escolhido \n\
         7 - Gerar holerites de todos os funcionários no mês escolhido: "
 
-    num_tarefas = enunciado.count('\n')
+    num_tarefas = enunciado.count('\n') - 1
 
     while True:
         opcao = input(enunciado)
@@ -62,12 +61,13 @@ def menu():
 
     try:
         tarefas(opcao)
+        print('\nOperação realizada com sucesso!\n')
     except NotFoundError as nfderror: 
-        print('\n'+nfderror.args[0]+'\n')
+        print(nfderror.args[0]+'\n')
     except NotValidFormatError as nvferror:
-        print('\n'+nvferror.args[0]+'\n')
+        print(nvferror.args[0]+'\n')
     except DuplicatedEntryError as dtderror: 
-        print('\n'+dtderror.args[0]+'\n')
+        print(dtderror.args[0]+'\n')
 
 def tarefas(opcao):
 
