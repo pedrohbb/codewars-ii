@@ -38,7 +38,7 @@ Stone e How Bootcamps :green_heart: :purple_heart:
       <li>Listagem de todos os funcionários registrados</li>
       <li>Geração de holerite de funcionário específico</li>
       <li>Geração de holerite de todos os funcionários em um mês específico</li>
-      *Obs.: os holerites gerados são salvos automaticamente no banco de dados, exceto caso já tenha sido salvo anteriormente um holerite para a mesma matrícula e mesmo mês.
+      *Obs.: os holerites gerados são salvos automaticamente no banco de dados, exceto caso já tenha sido salvo anteriormente um holerite para a mesma matrícula e mesmo mês
      </ul>
      <li>Tratamento de exceptions</li>
      <li>Extras:</li>
@@ -49,7 +49,7 @@ Stone e How Bootcamps :green_heart: :purple_heart:
       </ul>
 </ul>
        
-<b>:x:	Pendentes:</b>
+<b>:x: Pendentes:</b>
 <ul>
    <li>Do enunciado:</li>
    <ul>
