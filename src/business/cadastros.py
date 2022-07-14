@@ -6,8 +6,7 @@ from src.exceptions.duplicated_entry_error import DuplicatedEntryError
 from src.exceptions.not_valid_format_error import NotValidFormatError
 
 
-class Cadastro():
-
+class Cadastro:
     def consultar(self, chave: int):
         """
         :chave: int - matrícula ou cpf
@@ -15,16 +14,16 @@ class Cadastro():
 
         chave_tipo = Cadastro.validacao(chave)
 
-        if chave_tipo == 1: 
-            consultar_chave = (f"""\
+        if chave_tipo == 1:
+            consultar_chave = f"""\
                             SELECT matricula, nome, cpf, data_admissao, codigo_cargo, comissao\
                             FROM funcionarios WHERE cpf = '{chave}';\
-        """)
+        """
         elif chave_tipo == 5:
-            consultar_chave = (f"""\
+            consultar_chave = f"""\
                             SELECT matricula, nome, cpf, data_admissao, codigo_cargo, comissao\
                             FROM funcionarios WHERE matricula = {chave};\
-        """)
+        """
         else:
             raise NotValidFormatError("Matrícula/cpf não reconhecida(o)")
 
@@ -34,13 +33,20 @@ class Cadastro():
         cursor.execute(consultar_chave)
 
         query = cursor.fetchall()
-        
+
         if len(query) == 0:
-            raise NotFoundError('Funcionário inexistente no cadastro.') 
+            raise NotFoundError("Funcionário inexistente no cadastro.")
         else:
             query = query[0]
-        
-        campos = ['matricula', 'nome', 'cpf', 'data_admissao', 'codigo_cargo', 'comissao']
+
+        campos = [
+            "matricula",
+            "nome",
+            "cpf",
+            "data_admissao",
+            "codigo_cargo",
+            "comissao",
+        ]
         resultado_consulta = {}
         for i in range(len(campos)):
             resultado_consulta[campos[i]] = query[i]
@@ -49,7 +55,7 @@ class Cadastro():
 
         return resultado_consulta
 
-    def inserir(self, nome, cpf, data_admissao, codigo_cargo, comissao) -> None:  
+    def inserir(self, nome, cpf, data_admissao, codigo_cargo, comissao) -> None:
 
         try:
             self.consultar(cpf)
@@ -76,10 +82,10 @@ class Cadastro():
 
         chave_tipo = Cadastro.validacao(chave)
 
-        if chave_tipo == 1: 
-            deletar_funcionario = (f"DELETE FROM funcionarios WHERE cpf = '{chave}';")
+        if chave_tipo == 1:
+            deletar_funcionario = f"DELETE FROM funcionarios WHERE cpf = '{chave}';"
         elif chave_tipo == 5:
-            deletar_funcionario = (f"DELETE FROM funcionarios WHERE matricula = {chave};")
+            deletar_funcionario = f"DELETE FROM funcionarios WHERE matricula = {chave};"
         else:
             raise NotValidFormatError("Matrícula/cpf não reconhecida(o)\n")
 
@@ -89,15 +95,13 @@ class Cadastro():
 
         cnx.close()
 
-        print('Funcionário excluído com sucesso!\n')
-
+        print("Funcionário excluído com sucesso!\n")
 
     def alterar(self, chave, campo, dado):
-        campos = ['nome', 'cpf', 'data_admissao', 'codigo_cargo', 'comissao']
-        aux = [0,1,2,3,4]
-        campos = dict(list(zip(campos,aux)))
-        campos['invalido'] = -1
-
+        campos = ["nome", "cpf", "data_admissao", "codigo_cargo", "comissao"]
+        aux = [0, 1, 2, 3, 4]
+        campos = dict(list(zip(campos, aux)))
+        campos["invalido"] = -1
 
         cnx = mysql.connector.connect(**connection.config)
         cursor = cnx.cursor()
@@ -106,10 +110,14 @@ class Cadastro():
 
         chave_tipo = Cadastro.validacao(chave)
 
-        if chave_tipo == 1: 
-            alterar_funcionario = (f"UPDATE funcionarios SET {campo} = '{dado}' WHERE cpf = '{chave}';")
+        if chave_tipo == 1:
+            alterar_funcionario = (
+                f"UPDATE funcionarios SET {campo} = '{dado}' WHERE cpf = '{chave}';"
+            )
         elif chave_tipo == 5:
-            alterar_funcionario = (f"UPDATE funcionarios SET {campo} = '{dado}' WHERE matricula = {chave};")
+            alterar_funcionario = (
+                f"UPDATE funcionarios SET {campo} = '{dado}' WHERE matricula = {chave};"
+            )
         else:
             raise NotValidFormatError("Matrícula/cpf não reconhecida(o)")
 
@@ -129,7 +137,7 @@ class Cadastro():
         cnx = mysql.connector.connect(**connection.config)
         cursor = cnx.cursor()
 
-        consultar_dados = ("SELECT * FROM funcionarios;")
+        consultar_dados = "SELECT * FROM funcionarios;"
 
         cursor.execute(consultar_dados)
 
@@ -158,14 +166,14 @@ class Cadastro():
         if isinstance(entry, int):
             if entry >= 100000:
                 return matricula
-        
+
         if isinstance(entry, float):
-            if 0.03 <= entry <= 0.1:    
+            if 0.03 <= entry <= 0.1:
                 return comissao
             if entry == 0 or (0.1 < entry <= 22.5):
                 return faltas
 
-        if entry == '1' or entry == '0':
+        if entry == "1" or entry == "0":
             return comissao
 
         algs = set("0123456789")
@@ -179,10 +187,10 @@ class Cadastro():
                 return cpf
             else:
                 return invalido
-        
+
         if set(entry).issubset(algs.union(set("-"))):
-            if (entry[4] == entry[7] == '-') and len(entry) == 10:
-                return data_admissao           
+            if (entry[4] == entry[7] == "-") and len(entry) == 10:
+                return data_admissao
 
         if set(entry).issubset(algs.union(set("/"))):
             if entry[2] == "/" and len(entry) == 7:
@@ -190,7 +198,7 @@ class Cadastro():
 
         noums_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ" + "'" + " "
         noums_chars += "ABCDEFGHIJKLMNOPQRSTUVWXYZ".lower()
-        noums_chars += ("ãõáéíóúäëïöü" + "ãõáéíóúäëïöü".upper())
+        noums_chars += "ãõáéíóúäëïöü" + "ãõáéíóúäëïöü".upper()
         noums_chars = set(noums_chars)
 
         if set(entry).issubset(noums_chars):

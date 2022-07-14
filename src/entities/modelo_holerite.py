@@ -3,8 +3,7 @@ from db import connection
 from src.business.cadastros import Cadastro
 
 
-class Modelo_Holerite():
-
+class Modelo_Holerite:
     def __init__(self, holerite, cadastro: Cadastro):
         self.__holerite = holerite
         self.__cadastro = cadastro
@@ -23,14 +22,14 @@ class Modelo_Holerite():
 
         dados_funcionario = self.cadastro.consultar(matricula)
 
-        nome = dados_funcionario['nome']
-        data_admissao = dados_funcionario['data_admissao']
-        cargo = dados_funcionario['codigo_cargo']
+        nome = dados_funcionario["nome"]
+        data_admissao = dados_funcionario["data_admissao"]
+        cargo = dados_funcionario["codigo_cargo"]
 
         cnx = mysql.connector.connect(**connection.config)
         cursor = cnx.cursor()
 
-        consultar_salario = (f" SELECT descricao, taxa_comissao FROM cargos WHERE codigo_cargo = {cargo};")
+        consultar_salario = f" SELECT descricao, taxa_comissao FROM cargos WHERE codigo_cargo = {cargo};"
 
         cursor.execute(consultar_salario)
 

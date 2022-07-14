@@ -5,15 +5,14 @@ from src.business.cadastros import Cadastro
 from src.exceptions.not_valid_format_error import NotValidFormatError
 
 
-class Holerite():
-
+class Holerite:
     def __init__(self, mes_ano: str, matricula: int, faltas: float):
         query = Cadastro().consultar(matricula)
         if Cadastro.validacao(mes_ano) != 6:
-            raise NotValidFormatError("mes_ano em formato inválido!") 
+            raise NotValidFormatError("mes_ano em formato inválido!")
         if Cadastro.validacao(faltas) != 7:
             raise NotValidFormatError("faltas em formato inválido!")
-        matricula = query['matricula'] 
+        matricula = query["matricula"]
         self.__mes_ano = mes_ano
         self.__matricula: int = matricula
         self.__salario_base: float = self.consultar_salario_base()
@@ -83,10 +82,10 @@ class Holerite():
         cnx = mysql.connector.connect(**connection.config)
         cursor = cnx.cursor()
 
-        consultar_salario = (f"""\
+        consultar_salario = f"""\
                 SELECT salario_base FROM cargos\
                 RIGHT JOIN funcionarios USING (codigo_cargo) WHERE matricula = {self.matricula};\
-        """)
+        """
 
         cursor.execute(consultar_salario)
 
@@ -98,26 +97,28 @@ class Holerite():
             return salario
 
         except IndexError:
-            print('Funcionário inexistente!')
-            return('')
+            print("Funcionário inexistente!")
+            return ""
 
     def consultar_valor_comissao(self):
 
         cnx = mysql.connector.connect(**connection.config)
         cursor = cnx.cursor()
 
-        consultar_comissao = (f"SELECT comissao FROM funcionarios WHERE matricula = {self.matricula};")
+        consultar_comissao = (
+            f"SELECT comissao FROM funcionarios WHERE matricula = {self.matricula};"
+        )
 
         cursor.execute(consultar_comissao)
 
         comissao = cursor.fetchall()[0][0]
 
-        if comissao == '1':
-            consultar_taxa_comissao = (f"""\
+        if comissao == "1":
+            consultar_taxa_comissao = f"""\
                 SELECT c.taxa_comissao FROM cargos AS c RIGHT JOIN funcionarios\
                 AS f USING(codigo_cargo)\
                 WHERE matricula = {self.matricula};\
-            """)
+            """
 
             cursor.execute(consultar_taxa_comissao)
 
@@ -130,12 +131,14 @@ class Holerite():
 
         valor_comissao = taxa_comissao * self.salario_base
 
-
         return round(valor_comissao, 2)
 
     def calcular_base_de_calculo(self):
         add_eventual = 0  # input("Adicionais eventuais (hora extra etc): ")
-        return round(self.salario_base + self.valor_comissao + add_eventual - self.valor_faltas, 2)
+        return round(
+            self.salario_base + self.valor_comissao + add_eventual - self.valor_faltas,
+            2,
+        )
 
     def calcular_inss(self) -> float:
 
@@ -143,7 +146,8 @@ class Holerite():
             (0, 1212, 0.075),
             (1212.01, 2427.35, 0.09),
             (2427.36, 3641.03, 0.12),
-            (3641.04, 7087.22, 0.14)]
+            (3641.04, 7087.22, 0.14),
+        ]
 
         inss = 0
 
@@ -169,7 +173,8 @@ class Holerite():
             (1903.99, 2826.65, 0.075, 142.8),
             (2826.66, 3751.05, 0.15, 354.8),
             (3751.06, 4664.68, 0.225, 636, 13),
-            (4664.69, 999999, 0.275, 869.36)]
+            (4664.69, 999999, 0.275, 869.36),
+        ]
 
         for faixa in faixas_irrf:
             if aux > faixa[0] and aux < faixa[1]:
@@ -190,10 +195,10 @@ class Holerite():
         cnx = mysql.connector.connect(**connection.config)
         cursor = cnx.cursor()
 
-        inserir_holerite = (f"""\
+        inserir_holerite = f"""\
             INSERT INTO holerite (mes_ano, matricula, faltas, inss, irrf, fgts, salario_liquido)\
             VALUES ('{self.mes_ano}', {self.matricula}, {self.faltas}, {self.inss}, {self.irrf}, {self.fgts}, {self.salario_liquido});\
-        """)
+        """
 
         cursor.execute(inserir_holerite)
 
@@ -206,8 +211,7 @@ class Holerite():
         cnx = mysql.connector.connect(**connection.config)
         cursor = cnx.cursor()
 
-        consultar_holerite = (
-            f"SELECT * FROM holerite WHERE matricula = {self.matricula} AND mes_ano = '{self.mes_ano}';")
+        consultar_holerite = f"SELECT * FROM holerite WHERE matricula = {self.matricula} AND mes_ano = '{self.mes_ano}';"
 
         cursor.execute(consultar_holerite)
 
@@ -228,10 +232,10 @@ class Holerite():
 def gerar_todos_holerites(cadastro: Cadastro, mes_ano: str) -> None:
     lista_funcionarios = cadastro.listar()
     if len(lista_funcionarios) == 0:
-        print('Não há nenhum funcionário cadastrado!')
+        print("Não há nenhum funcionário cadastrado!")
 
     else:
         for matricula in lista_funcionarios.keys():
             holerite = Holerite(mes_ano, matricula, 0.0)
             holerite.gerar_holerite()
-            print('\n' + ' '*24 + '#'*128)
+            print("\n" + " " * 24 + "#" * 128)
