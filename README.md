@@ -66,6 +66,6 @@ Stone e How Bootcamps :green_heart: :purple_heart:
      <li>Retirar o hardcoding do script nas consultas ao banco de dados</li>
      <li>Criar banco de dados de funcionários inativos para arquivamento dos funcionários cujos contratos tenham sido rescindidos, incluindo "data rescisão"</li>
      <li>Adicionar função: alterar dados do holerite (caso tenham sido inseridos dados errados na geração inicial do holerite)</li>
-     <li>Fazer tratamento de exceções para que só possa ser emitido holerite de um mês que esteja entre a admissão e a rescisão do funcionário (caso inativo) ou entre a admissão e a data atual (caso inativo)</li>
+     <li>Fazer tratamento de exceções para que só possa ser emitido holerite de um mês que esteja entre a admissão e a rescisão do funcionário (caso inativo) ou entre a admissão e a data atual (caso ativo)</li>
    </ul>
 </ul>
